@@ -11,7 +11,7 @@ router.post("/register", async (req, res) => {
   const { login, password } = req.body;
 
   try {
-    if (!login || !password) throw new wError("Все поля обязательны");
+    if (!login || !password) throw new Error("Все поля обязательны");
 
     const exist = await User.findOne({ login });
     if (exist) throw new Error("Логин уже используется");
@@ -43,7 +43,7 @@ router.post("/login", async (req, res) => {
     if (!match) throw new Error("Неверный пароль");
 
     const token = jwt.sign({ id: user._id }, "nero2008", { expiresIn: "3d" });
-    res.json({ email: user.email, token });
+    res.json({ login: user.login, token });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

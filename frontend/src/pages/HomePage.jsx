@@ -9,10 +9,10 @@ const HomePage = () => {
   //получение всех заметок
   useEffect(() => {
     const fetchNotes = async () => {
-      const response = fetch("http://localhost:5000/api/notes", {
+      const response = await fetch("http://localhost:5000/api/notes", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = (await response).json();
+      const data = await response.json();
       if (response.ok) {
         setNotes(data);
       }

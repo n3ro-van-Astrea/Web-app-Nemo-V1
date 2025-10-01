@@ -4,7 +4,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/", authMiddleware, async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const notes = await Note.find({ user: req.user }).sort({ createdAt: -1 });
     res.json(notes);
@@ -15,13 +15,17 @@ router.post("/", authMiddleware, async (req, res) => {
 
 //создание новой заметки
 
-router.post("/:id", authMiddleware, async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   const { title, content } = req.body;
 
   try {
     if (!title || !content) throw new Error("Все поля обязательны");
 
-    const note = await Note.create({ user: req.user }, title, content);
+    const note = await Note.create({
+      user: req.user,
+      title,
+      content,
+    });
 
     res.status(201).json(note);
   } catch (err) {

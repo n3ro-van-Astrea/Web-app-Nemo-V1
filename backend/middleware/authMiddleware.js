@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded.id; // добавляем id пользователя в req.user
     next();
   } catch (err) {
-    res.status(401).json({ error: "Неверный токен" });
+    res.status(401).json({ error: "Вы не авторизованы" });
   }
 };
 

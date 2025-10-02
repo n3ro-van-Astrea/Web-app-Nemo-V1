@@ -1,25 +1,12 @@
 import React, { useEffect, useState } from "react";
-
 const HomePage = () => {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [error, setError] = useState(null);
+  const [info, setInfo] = useState(null);
+
   const token = localStorage.getItem("token");
-
-  //получение всех заметок
-  useEffect(() => {
-    const fetchNotes = async () => {
-      const response = await fetch("http://localhost:5000/api/notes", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setNotes(data);
-      }
-    };
-
-    fetchNotes();
-  }, [token]);
 
   //Добавление заметки
 
@@ -40,45 +27,41 @@ const HomePage = () => {
       setNotes((prev) => [...prev, data]);
       setTitle("");
       setContent("");
+      setInfo("Заметка добавлена");
     } else {
-      alert(data.error);
-    }
-  };
-  // Удаление заметки
-  const deleteNote = async (id) => {
-    const res = await fetch(`http://localhost:5000/api/notes/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      setNotes((prev) => prev.filter((note) => note._id !== id));
+      setError(data.error);
     }
   };
 
   return (
-    <div>
-      <form onSubmit={addNote} className="mb-4">
-        <input
-          placeholder="Заголовок"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          placeholder="Задача"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <button type="submit">Добавить</button>
+    <div className="flex flex-col items-center justify-center w-[101vw] h-[85vh] bg-gray-700 text-2xl text-white ">
+      <form
+        onSubmit={addNote}
+        className="shadow-xl p-5 rounded-2xl border-1 border-gray-600 gap-4 mb-4 bg-gray-900 flex flex-col"
+      >
+        <div className="flex flex-col self-start w-full gap-4">
+          <input
+            className=" border-1 border-gray-600 p-2 rounded-md"
+            placeholder="Заголовок"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <input
+            className=" border-1 border-gray-600 p-2 rounded-md"
+            placeholder="Задача"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        </div>
+        <button
+          className="bg-green-700 p-2 px-10 rounded-md text-center"
+          type="submit"
+        >
+          Добавить
+        </button>
+        {error && <div className="text-red-600">{error}</div>}
+        {info && <div className="text-green-600">{info}</div>}
       </form>
-
-      <ul>
-        {notes.map((note) => (
-          <li key={note._id}>
-            <b>{note.title}:</b> {note.content}{" "}
-            <button onClick={() => deleteNote(note._id)}>❌</button>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

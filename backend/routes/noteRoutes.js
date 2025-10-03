@@ -48,4 +48,19 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   }
 });
 
+router.patch("/:id/done", authMiddleware, async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note)
+      return res.status(400).json({ message: "не найдена заметка по айди" });
+
+    note.isDone = !note.isDone;
+    await note.save();
+
+    res.json(note);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 module.exports = router;

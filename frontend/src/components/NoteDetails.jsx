@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaTrashCan } from "react-icons/fa6";
 import { AnimatePresence, motion } from "framer-motion";
+import { FaCheck } from "react-icons/fa";
 
 const NoteDetails = () => {
   const [notes, setNotes] = useState([]);
@@ -37,6 +38,29 @@ const NoteDetails = () => {
     }
   };
 
+  //функция для выполненных заметок
+
+  const toggleDone = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/notes/${id}/done`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Ошибка при обновлении");
+
+      const updatedNote = await res.json();
+      setNotes((prev) =>
+        prev.map((note) => (note._id === updatedNote._id ? updatedNote : note))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // получаем уникальные даты
   const uniqueDates = [
     ...new Set(
@@ -47,7 +71,7 @@ const NoteDetails = () => {
   return (
     <>
       {token ? (
-        <div className="w-[101vw] h-[85vh] flex flex-col items-center bg-gray-700 p-2 text-xl text-white">
+        <div className="w-[101vw] h-[100vh] flex flex-col items-center bg-gray-700 p-2 text-xl text-white">
           <div className="w-full flex flex-col gap-4">
             {uniqueDates.map((date) => {
               const notesForDate = notes.filter(
@@ -100,20 +124,50 @@ const NoteDetails = () => {
                           >
                             <div className="flex w-full justify-between">
                               <strong>{note.title}:</strong>
-                              <motion.button
-                                initial={{ opacity: 0, scale: 0.7 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                whileTap={{
-                                  scale: 1.1,
-                                  transition: { type: "spring", duration: 0.3 },
-                                }}
-                                transition={{ delay: 0.2, type: "spring" }}
-                                onClick={() => setDeleteTargetId(note._id)}
-                              >
-                                <FaTrashCan size={20} color="red" />
-                              </motion.button>
+                              <div className="flex gap-2">
+                                <motion.button
+                                  initial={{ opacity: 0, scale: 0.7 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  whileTap={{
+                                    scale: 1.1,
+                                    transition: {
+                                      type: "spring",
+                                      duration: 0.3,
+                                    },
+                                  }}
+                                  transition={{ delay: 0.2, type: "spring" }}
+                                  onClick={() => setDeleteTargetId(note._id)}
+                                >
+                                  <FaTrashCan size={20} color="red" />
+                                </motion.button>
+                                <motion.button
+                                  initial={{ opacity: 0, scale: 0.7 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  whileTap={{
+                                    scale: 1.1,
+                                    transition: {
+                                      type: "spring",
+                                      duration: 0.3,
+                                    },
+                                  }}
+                                  transition={{ delay: 0.2, type: "spring" }}
+                                  // onClick={() => setDeleteTargetId(note._id)}
+                                  onClick={() => toggleDone(note._id)}
+                                >
+                                  <FaCheck size={20} color="green" />
+                                </motion.button>
+                              </div>
                             </div>
                             <div className="p-1">{note.content}</div>
+                            <div
+                              className={`border-2 mt-2 px-2 bg-gray-800 p-1 rounded-md font-mono ${
+                                note.isDone
+                                  ? "border-green-600"
+                                  : "border-red-500"
+                              }`}
+                            >
+                              {note.isDone ? "Выполнено" : "Не выполнено"}
+                            </div>
                           </motion.div>
                         ))}
                       </motion.div>
